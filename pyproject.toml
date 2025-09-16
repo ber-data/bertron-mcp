@@ -2,7 +2,7 @@
 name = "bertron-mcp"
 dynamic = ["version"]
 description = "An MCP for accessing the BERtron API"
-requires-python = ">=3.12.19,<3.14"
+requires-python = ">=3.10"
 license = {text = "BSD3-LBNL"}
 keywords = ["mcp", "genome"]
 dependencies = [
