@@ -211,6 +211,7 @@ dependencies = [
     { name = "bertron-client" },
     { name = "fastmcp" },
     { name = "pytest" },
+    { name = "requests" },
     { name = "urllib3" },
 ]
 
@@ -235,6 +236,7 @@ requires-dist = [
     { name = "bertron-client", git = "https://github.com/ber-data/bertron-client.git?rev=main" },
     { name = "fastmcp", specifier = ">=2.7.1" },
     { name = "pytest", specifier = ">=8.4.1" },
+    { name = "requests", specifier = ">=2.32.4" },
     { name = "urllib3", specifier = ">=2.0.0" },
 ]
 

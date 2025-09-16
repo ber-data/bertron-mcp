@@ -92,7 +92,7 @@ test-mcp-extended:
 	 sleep 0.1; \
 	 echo '{"jsonrpc": "2.0", "method": "notifications/initialized", "params": {}}'; \
 	 sleep 0.1; \
-	 echo '{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "geosearch", "arguments": {"latitude": 37.7749, "longitude": -122.4194}}, "id": 3}') | \
+	 echo '{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "geosearch", "arguments": {"latitude": 28.5383, "longitude": -81.3792, "search_radius_km": 100.0}}, "id": 3}') | \
 	uv run python src/bertron_mcp/main.py
 
 # Test version flag
@@ -108,7 +108,7 @@ test-claude-mcp:
 		--verbose \
 		--mcp-config .mcp.json \
 		--dangerously-skip-permissions \
-		--print "Test the bertron-mcp by listing available tools and then search for entities within 10km of latitude 37.7749, longitude -122.4194" \
+		--print "Test the bertron-mcp by listing available tools and then search for entities within 100km of latitude 28.5383, longitude -81.3792" \
 		2>&1 | tee claude-mcp-test.log
 
 # Demo BERtron functionality  
