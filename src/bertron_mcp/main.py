@@ -35,7 +35,7 @@ def health_check() -> dict[str, bool] | None:
     Check BERtron API health status.
 
     Returns:
-        Optional[dict[str, bool]]: Health status with 'web_server' and 'database'.
+        dict[str, bool] | None: Health status with 'web_server' and 'database'.
     """
     client = BertronClient(base_url=BERTRON_API_URL)
     # Disable SSL verification for self-signed certificates in testing
@@ -72,9 +72,10 @@ def geosearch(
         QueryResponse: or None if no data could be retrieved.
         # TODO: Return QueryResponse or extract entities?
     """
+    # TODO: Reuse BertronClient instance?
     client = BertronClient(base_url=BERTRON_API_URL)
     # Disable SSL verification for self-signed certificates in testing
-    client.session.verify = False # TODO: Reuse BertronClient instance?
+    client.session.verify = False
 
     try:
         # TODO: geocode docs say meters, but seem to interpret as km
