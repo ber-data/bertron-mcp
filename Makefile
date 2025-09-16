@@ -113,23 +113,3 @@ demo-bertron:
 	@echo ""
 	@echo "✅ BERtron MCP provides genomic data access for AI agents!"
 
-# BERtron MCP - Development Claude Desktop config:
-#   Add to ~/Library/Application Support/Claude/claude_desktop_config.json:
-#   {
-#     "mcpServers": {
-#       "bertron-mcp": {
-#         "command": "uv",
-#         "args": ["run", "python", "src/bertron_mcp/main.py"],
-#         "cwd": "/path/to/bertron-mcp"
-#       }
-#     }
-#   }
-#
-# Claude Code MCP setup (local development):
-#   claude mcp add -s project bertron-mcp uv run python src/bertron_mcp/main.py
-#
-# Goose setup (local development):
-#   goose session --with-extension "uv run python src/bertron_mcp/main.py"
-#
-# Production setup (after publishing to PyPI):
-#   claude mcp add -s project bertron-mcp uvx bertron-mcp
