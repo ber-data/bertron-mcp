@@ -1,4 +1,4 @@
-.PHONY: test-coverage clean install dev format lint all server build upload-test upload release deptry mypy test-mcp test-mcp-extended test-integration test-version test-mcp-protocol test-claude-mcp demo-bertron
+.PHONY: test-coverage clean install dev format lint all server build upload-test upload release deptry mypy test-mcp test-mcp-extended test-integration test-version test-mcp-protocol test-claude-mcp
 
 # Default target
 all: clean install dev test-coverage format lint mypy deptry build test-mcp test-mcp-extended test-integration test-version
@@ -111,11 +111,4 @@ test-claude-mcp:
 		--print "Test the bertron-mcp by listing available tools and then search for entities within 100km of latitude 28.5383, longitude -81.3792" \
 		2>&1 | tee claude-mcp-test.log
 
-# Demo BERtron functionality  
-demo-bertron:
-	@echo "🚀 BERTRON MCP DEMO"
-	@echo "=================="
-	uv run python -c "import asyncio; print('BERtron MCP demo - implement actual demo call here')"
-	@echo ""
-	@echo "✅ BERtron MCP provides genomic data access for AI agents!"
 
