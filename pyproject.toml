@@ -1,14 +1,19 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
 [project]
 name = "bertron-mcp"
 dynamic = ["version"]
 description = "An MCP for accessing the BERtron API"
 requires-python = ">=3.12.19,<3.14"
-license = {text = "BSD3-LBNL"}
+license = "BSD-3-Clause"
 keywords = ["mcp", "genome"]
 dependencies = [
     "fastmcp>=2.7.1",
     "pytest>=8.4.1",
     "requests>=2.32.4",
+    "urllib3>=2.0.0",
     "bertron-client @ git+https://github.com/ber-data/bertron-client.git@main"
 ]
 
@@ -42,6 +47,9 @@ bertron-mcp = "bertron_mcp.__main__:main"
 
 [tool.hatch.version]
 source = "vcs"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/bertron_mcp/_version.py"
@@ -108,10 +116,13 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
 ]
+filterwarnings = [
+    "ignore::urllib3.exceptions.InsecureRequestWarning",
+]
 
 # Coverage configuration
 [tool.coverage.run]
-source = ["src"]
+source = ["src/bertron_mcp"]
 omit = ["src/bertron_mcp/_version.py"]
 
 [tool.coverage.report]
@@ -131,6 +142,17 @@ pytest_asyncio = "pytest-asyncio"
 pytest_cov = "pytest-cov"
 hatch_vcs = "hatch-vcs"
 types_requests = "types-requests"
+fastmcp = "fastmcp"
+pytest = "pytest"
+bertron_client = "bertron-client"
+black = "black"
+ruff = "ruff"
+mypy = "mypy"
+hatchling = "hatchling"
+twine = "twine"
+hatch = "hatch"
+pip = "pip"
+urllib3 = "urllib3"
 
 # Ignore specific error types for known false positives
 [tool.deptry.per_rule_ignores]
@@ -138,5 +160,7 @@ DEP001 = ["bertron_mcp"]  # Missing deps: self-imports ok
 DEP002 = [
     # Dev dependencies not used in main code
     "black", "ruff", "mypy", "pytest", "pytest-asyncio", "pytest-cov",
-    "hatch-vcs", "hatchling", "twine", "hatch", "types-requests", "pip"
+    "hatch-vcs", "hatchling", "twine", "hatch", "types-requests", "pip",
+    # Indirect dependencies used by bertron-client
+    "requests"
 ]

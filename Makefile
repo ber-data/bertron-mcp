@@ -1,4 +1,4 @@
-.PHONY: test-coverage clean install dev format lint all server build upload-test upload release deptry mypy test-mcp test-mcp-extended test-integration test-version test-mcp-protocol
+.PHONY: test-coverage clean install dev format lint all server build upload-test upload release deptry mypy test-mcp test-mcp-extended test-integration test-version test-mcp-protocol test-claude-mcp
 
 # Default target
 all: clean install dev test-coverage format lint mypy deptry build test-mcp test-mcp-extended test-integration test-version
@@ -13,7 +13,7 @@ install:
 
 # Run tests with coverage
 test-coverage:
-	uv run pytest --cov=bertron_mcp --cov-report=html --cov-report=term tests/
+	uv run pytest --cov=src/bertron_mcp --cov-report=html --cov-report=term tests/
 
 # Clean up build artifacts
 clean:
@@ -92,27 +92,23 @@ test-mcp-extended:
 	 sleep 0.1; \
 	 echo '{"jsonrpc": "2.0", "method": "notifications/initialized", "params": {}}'; \
 	 sleep 0.1; \
-	 echo '{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "search", "arguments": {"lat": 37.7749, "lon": -122.4194}}, "id": 3}') | \
+	 echo '{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "geosearch", "arguments": {"latitude": 28.5383, "longitude": -81.3792, "search_radius_km": 100.0}}, "id": 3}') | \
 	uv run python src/bertron_mcp/main.py
 
 # Test version flag
 test-version:
 	@echo "🔢 Testing version flag..."
-	uv run bertron-mcp --version
+	uv run python src/bertron_mcp/main.py --version
 
-# BERtron MCP - Claude Desktop config:
-#   Add to ~/Library/Application Support/Claude/claude_desktop_config.json:
-#   {
-#     "mcpServers": {
-#       "bertron-mcp": {
-#         "command": "uvx",
-#         "args": ["bertron-mcp"]
-#       }
-#     }
-#   }
-#
-# Claude Code MCP setup:
-#   claude mcp add -s project bertron-mcp uvx bertron-mcp
-#
-# Goose setup:
-#   goose session --with-extension "uvx bertron-mcp"
+# Test with Claude CLI using local config
+test-claude-mcp:
+	@echo "🤖 Testing BERtron MCP with Claude CLI..."
+	claude \
+		--debug \
+		--verbose \
+		--mcp-config .mcp.json \
+		--dangerously-skip-permissions \
+		--print "Test the bertron-mcp by listing available tools and then search for entities within 100km of latitude 28.5383, longitude -81.3792" \
+		2>&1 | tee claude-mcp-test.log
+
+

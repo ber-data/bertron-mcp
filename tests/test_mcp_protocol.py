@@ -1,7 +1,7 @@
 """
 MCP protocol tests for bertron-mcp server.
 
-These tests verify that the MCP server correctly implements the protocol and responds to standard MCP requests.
+Tests verify MCP server implements protocol and responds to requests.
 """
 
 def test_mcp_tool_registration():
