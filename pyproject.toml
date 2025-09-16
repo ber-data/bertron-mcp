@@ -12,6 +12,7 @@ keywords = ["mcp", "genome"]
 dependencies = [
     "fastmcp>=2.7.1",
     "pytest>=8.4.1",
+    "requests>=2.32.4",
     "urllib3>=2.0.0",
     "bertron-client @ git+https://github.com/ber-data/bertron-client.git@main"
 ]
