@@ -11,7 +11,7 @@
                 "python",
                 "src/bertron_mcp/main.py"
             ],
-            "cwd": "/Users/MAM/Documents/gitrepos/bertron/bertron-mcp"
+            "cwd": "."
         }
     }
 }

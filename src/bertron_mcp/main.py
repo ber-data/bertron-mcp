@@ -35,7 +35,7 @@ def health_check() -> dict[str, bool] | None:
     Check BERtron API health status.
 
     Returns:
-        Optional[dict[str, str]]: Health status with 'web_server' and 'database'.
+        Optional[dict[str, bool]]: Health status with 'web_server' and 'database'.
     """
     client = BertronClient(base_url=BERTRON_API_URL)
     # Disable SSL verification for self-signed certificates in testing
