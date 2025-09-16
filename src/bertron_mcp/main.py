@@ -6,11 +6,14 @@
 import logging
 import sys
 from importlib import metadata
-from typing import Optional
 
+# Suppress SSL warnings for development/testing with self-signed certificates
+import urllib3
+from bertron_client import BertronAPIError, BertronClient, QueryResponse
 from fastmcp import FastMCP
 
-from bertron_client import BertronClient, BertronAPIError, QueryResponse
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 # from schema.datamodel.bertron_schema_pydantic import Entity, BERSourceType, EntityType
 
 logger = logging.getLogger(__name__)
@@ -27,14 +30,16 @@ except metadata.PackageNotFoundError:
 
 BERTRON_API_URL: str = "https://bertron-api.bertron.production.svc.spin.nersc.org/bertron/"
 
-def health_check() -> Optional[dict[str, bool]]:
+def health_check() -> dict[str, bool] | None:
     """
     Check BERtron API health status.
 
     Returns:
-        Optional[dict[str, str]]: Health status keys include 'web_server' and 'database'.
+        Optional[dict[str, str]]: Health status with 'web_server' and 'database'.
     """
     client = BertronClient(base_url=BERTRON_API_URL)
+    # Disable SSL verification for self-signed certificates in testing
+    client.session.verify = False
 
     try:
         health_status = client.health_check()
@@ -56,7 +61,7 @@ def geosearch(
     search_radius_km: float = 1.0
 ) -> QueryResponse | None:
     """
-    Search BERtron catalogue for data within a specified distance of a given latitude and longitude.
+    Search BERtron catalogue for data within distance of given coordinates.
 
     Args:
         latitude: latitude of the point (-90.0 to 90.0)
@@ -65,12 +70,15 @@ def geosearch(
 
     Returns:
         QueryResponse: or None if no data could be retrieved.
-        # TODO: Should we return the QueryResponse or extract the entities and return a list of those?
+        # TODO: Return QueryResponse or extract entities?
     """
-    client = BertronClient(base_url=BERTRON_API_URL) # TODO: Reuse BertronClient instance?
+    client = BertronClient(base_url=BERTRON_API_URL)
+    # Disable SSL verification for self-signed certificates in testing
+    client.session.verify = False # TODO: Reuse BertronClient instance?
 
     try:
-        result = client.get_entities_in_region(latitude, longitude, search_radius_km) # TODO: geocode docs say meters, but seem to interpret as km
+        # TODO: geocode docs say meters, but seem to interpret as km
+        result = client.get_entities_in_region(latitude, longitude, search_radius_km)
         logger.debug(result)
         return result
 
@@ -97,7 +105,7 @@ def main():
 
     if "--verbose" in sys.argv:
         log_level = logging.DEBUG
-        sys.argv.remove("--verbose")  # clean args so this parameter doesn't confuse other code
+        sys.argv.remove("--verbose")  # clean args for other code
 
     logging.basicConfig(
         level=log_level,

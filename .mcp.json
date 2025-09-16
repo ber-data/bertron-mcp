@@ -1,0 +1,17 @@
+{
+    "mcpServers":
+    {
+        "bertron-mcp":
+        {
+            "type": "stdio",
+            "command": "uv",
+            "args":
+            [
+                "run",
+                "python",
+                "src/bertron_mcp/main.py"
+            ],
+            "cwd": "/Users/MAM/Documents/gitrepos/bertron/bertron-mcp"
+        }
+    }
+}

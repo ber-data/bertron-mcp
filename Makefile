@@ -1,4 +1,4 @@
-.PHONY: test-coverage clean install dev format lint all server build upload-test upload release deptry mypy test-mcp test-mcp-extended test-integration test-version test-mcp-protocol
+.PHONY: test-coverage clean install dev format lint all server build upload-test upload release deptry mypy test-mcp test-mcp-extended test-integration test-version test-mcp-protocol test-claude-mcp demo-bertron
 
 # Default target
 all: clean install dev test-coverage format lint mypy deptry build test-mcp test-mcp-extended test-integration test-version
@@ -13,7 +13,7 @@ install:
 
 # Run tests with coverage
 test-coverage:
-	uv run pytest --cov=bertron_mcp --cov-report=html --cov-report=term tests/
+	uv run pytest --cov=src/bertron_mcp --cov-report=html --cov-report=term tests/
 
 # Clean up build artifacts
 clean:
@@ -98,21 +98,38 @@ test-mcp-extended:
 # Test version flag
 test-version:
 	@echo "🔢 Testing version flag..."
-	uv run bertron-mcp --version
+	uv run python src/bertron_mcp/main.py --version
 
-# BERtron MCP - Claude Desktop config:
+# Test with Claude CLI using local config
+test-claude-mcp:
+	@echo "🤖 Testing BERtron MCP with Claude CLI..."
+	claude --debug --verbose --mcp-config .mcp.json --dangerously-skip-permissions --print "Test the bertron-mcp by listing available tools and then search for entities within 10km of latitude 37.7749, longitude -122.4194" 2>&1 | tee claude-mcp-test.log
+
+# Demo BERtron functionality  
+demo-bertron:
+	@echo "🚀 BERTRON MCP DEMO"
+	@echo "=================="
+	uv run python -c "import asyncio; print('BERtron MCP demo - implement actual demo call here')"
+	@echo ""
+	@echo "✅ BERtron MCP provides genomic data access for AI agents!"
+
+# BERtron MCP - Development Claude Desktop config:
 #   Add to ~/Library/Application Support/Claude/claude_desktop_config.json:
 #   {
 #     "mcpServers": {
 #       "bertron-mcp": {
-#         "command": "uvx",
-#         "args": ["bertron-mcp"]
+#         "command": "uv",
+#         "args": ["run", "python", "src/bertron_mcp/main.py"],
+#         "cwd": "/path/to/bertron-mcp"
 #       }
 #     }
 #   }
 #
-# Claude Code MCP setup:
-#   claude mcp add -s project bertron-mcp uvx bertron-mcp
+# Claude Code MCP setup (local development):
+#   claude mcp add -s project bertron-mcp uv run python src/bertron_mcp/main.py
 #
-# Goose setup:
-#   goose session --with-extension "uvx bertron-mcp"
+# Goose setup (local development):
+#   goose session --with-extension "uv run python src/bertron_mcp/main.py"
+#
+# Production setup (after publishing to PyPI):
+#   claude mcp add -s project bertron-mcp uvx bertron-mcp
