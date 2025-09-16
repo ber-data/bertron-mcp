@@ -1,4 +1,4 @@
-.PHONY: test-coverage clean install dev format lint all server build upload-test upload release deptry mypy test-mcp test-mcp-extended test-integration test-version test-mcp-protocol
+.PHONY: test-coverage clean install dev format lint all server build upload-test upload release deptry mypy test-mcp test-mcp-extended test-integration test-version test-mcp-protocol test-uvx test-uvx-mcp
 
 # Default target
 all: clean install dev test-coverage format lint mypy deptry build test-mcp test-mcp-extended test-integration test-version
@@ -100,19 +100,34 @@ test-version:
 	@echo "🔢 Testing version flag..."
 	uv run bertron-mcp --version
 
-# BERtron MCP - Claude Desktop config:
+# Test uvx installation from GitHub (feature branch)
+test-uvx:
+	@echo "📦 Testing uvx installation from GitHub..."
+	uvx --from git+https://github.com/ber-data/bertron-mcp.git@feature/uvx-github-installation bertron-mcp --version
+
+# Test uvx MCP server (feature branch)
+test-uvx-mcp:
+	@echo "🔧 Testing uvx MCP server functionality..."
+	@(echo '{"jsonrpc": "2.0", "method": "initialize", "params": {"protocolVersion": "2025-03-26", "capabilities": {"tools": {}}, "clientInfo": {"name": "test-client", "version": "1.0.0"}}, "id": 1}'; \
+	 sleep 0.1; \
+	 echo '{"jsonrpc": "2.0", "method": "notifications/initialized", "params": {}}'; \
+	 sleep 0.1; \
+	 echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 2}') | \
+	timeout 10 uvx --from git+https://github.com/ber-data/bertron-mcp.git@feature/uvx-github-installation bertron-mcp
+
+# BERtron MCP - Claude Desktop config (uvx from GitHub):
 #   Add to ~/Library/Application Support/Claude/claude_desktop_config.json:
 #   {
 #     "mcpServers": {
 #       "bertron-mcp": {
 #         "command": "uvx",
-#         "args": ["bertron-mcp"]
+#         "args": ["--from", "git+https://github.com/ber-data/bertron-mcp.git", "bertron-mcp"]
 #       }
 #     }
 #   }
 #
-# Claude Code MCP setup:
-#   claude mcp add -s project bertron-mcp uvx bertron-mcp
+# Claude Code MCP setup (uvx from GitHub):
+#   claude mcp add bertron-mcp "uvx --from git+https://github.com/ber-data/bertron-mcp.git bertron-mcp"
 #
-# Goose setup:
-#   goose session --with-extension "uvx bertron-mcp"
+# Goose setup (uvx from GitHub):
+#   goose session --with-extension "uvx --from git+https://github.com/ber-data/bertron-mcp.git bertron-mcp"
