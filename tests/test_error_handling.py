@@ -110,59 +110,41 @@ def test_entity_lookup_empty_id():
 
 def test_search_by_source_invalid_source():
     """Test search_by_source with invalid data sources"""
-    invalid_sources = ["INVALID", "", " ", "invalid_source", "123", None]
+    invalid_sources = ["INVALID", "", " ", "invalid_source", "123"]
 
     for source in invalid_sources:
-        try:
-            if source is None:
-                continue  # Skip None test
-            result = search_by_source(source)
-            # Should return None or empty result for invalid sources
-            assert result is None or isinstance(result, QueryResponse)
-            if isinstance(result, QueryResponse):
-                # Invalid sources should return no results
-                assert result.count >= 0
-        except Exception as e:
-            # API or validation errors are acceptable
-            assert isinstance(e, (BertronAPIError, TypeError))
+        result = search_by_source(source)
+        # Should return QueryResponse with no results for invalid sources
+        assert isinstance(result, QueryResponse)
+        assert result.count == 0  # Invalid sources should return empty results
 
 
 def test_search_by_type_invalid_type():
     """Test search_by_type with invalid entity types"""
-    invalid_types = ["invalid_type", "", " ", "123", None]
+    invalid_types = ["invalid_type", "", " ", "123"]
 
     for entity_type in invalid_types:
-        try:
-            if entity_type is None:
-                continue  # Skip None test
-            result = search_by_type(entity_type)
-            # Should return None or empty result for invalid types
-            assert result is None or isinstance(result, QueryResponse)
-            if isinstance(result, QueryResponse):
-                assert result.count >= 0
-        except Exception as e:
-            # API or validation errors are acceptable
-            assert isinstance(e, (BertronAPIError, TypeError))
+        result = search_by_type(entity_type)
+        # Should return QueryResponse with no results for invalid types
+        assert isinstance(result, QueryResponse)
+        assert result.count == 0  # Invalid types should return empty results
 
 
 def test_search_by_name_empty_pattern():
     """Test search_by_name with empty or invalid patterns"""
-    invalid_patterns = ["", " ", None]
+    invalid_patterns = ["", " "]
 
     for pattern in invalid_patterns:
-        try:
-            if pattern is None:
-                continue  # Skip None test
-            result = search_by_name(pattern)
-            # Should handle gracefully
-            assert result is None or isinstance(result, QueryResponse)
-        except Exception as e:
-            # API or validation errors are acceptable
-            assert isinstance(e, (BertronAPIError, TypeError))
+        result = search_by_name(pattern)
+        # Should return QueryResponse, possibly empty
+        assert isinstance(result, QueryResponse)
+        assert result.count >= 0  # Empty patterns might return no results
 
 
 def test_search_by_name_invalid_regex():
     """Test search_by_name with invalid regex patterns"""
+    import re
+    
     invalid_regex_patterns = [
         "[",           # Unclosed bracket
         "(?P<",        # Invalid group
@@ -171,13 +153,14 @@ def test_search_by_name_invalid_regex():
     ]
 
     for pattern in invalid_regex_patterns:
+        # These should either handle gracefully or raise specific regex errors
         try:
             result = search_by_name(pattern)
-            # Should handle regex errors gracefully
-            assert result is None or isinstance(result, QueryResponse)
-        except Exception as e:
-            # Regex or API errors are acceptable
-            assert isinstance(e, (BertronAPIError, ValueError))
+            # If it doesn't raise, should return QueryResponse
+            assert isinstance(result, QueryResponse)
+        except (re.error, BertronAPIError):
+            # Specific regex or API errors are acceptable
+            pass
 
 
 def test_advanced_query_excessive_skip():

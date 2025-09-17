@@ -176,24 +176,32 @@ def test_entity_data_quality():
 
 
 def test_error_recovery():
-    """Test that functions recover gracefully from errors"""
-    # Test with potentially problematic inputs
-    test_cases = [
-        lambda: geosearch(0.0, 0.0, 0.1),  # Very small radius
-        lambda: entity_lookup("invalid_id"),  # Invalid ID
-        lambda: search_by_source("INVALID_SOURCE"),  # Invalid source
-        lambda: search_by_type("invalid_type"),  # Invalid type
-        lambda: advanced_query(filter_dict={"nonexistent_field": "value"}),
-    ]
-
-    for test_func in test_cases:
-        try:
-            result = test_func()
-            # Should return valid result or None, not crash
-            assert result is None or isinstance(result, (QueryResponse, Entity, dict))
-        except Exception:
-            # Some exceptions are acceptable, but shouldn't crash the test
-            pass
+    """Test that functions handle edge cases appropriately"""
+    # Test with edge case inputs
+    
+    # Very small radius should work and return valid QueryResponse
+    result = geosearch(0.0, 0.0, 0.1)
+    assert isinstance(result, QueryResponse)
+    assert result.count >= 0  # Empty results are fine
+    
+    # Invalid ID should return None (documented behavior)
+    result = entity_lookup("invalid_id")
+    assert result is None
+    
+    # Invalid source should return QueryResponse with no results
+    result = search_by_source("INVALID_SOURCE")
+    assert isinstance(result, QueryResponse)
+    assert result.count == 0  # Should be empty but not None
+    
+    # Invalid type should return QueryResponse with no results  
+    result = search_by_type("invalid_type")
+    assert isinstance(result, QueryResponse)
+    assert result.count == 0  # Should be empty but not None
+    
+    # Nonexistent field should return QueryResponse (API should handle gracefully)
+    result = advanced_query(filter_dict={"nonexistent_field": "value"})
+    assert isinstance(result, QueryResponse)
+    assert result.count >= 0  # Empty results are acceptable
 
 
 def test_pagination_workflow():

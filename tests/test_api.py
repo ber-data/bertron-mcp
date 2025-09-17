@@ -485,30 +485,35 @@ def test_entity_lookup_invalid_id():
 def test_all_tools_return_types():
     """Test that all tools return expected types"""
     # Test basic calls to ensure proper return types
-    functions_to_test = [
-        (health_check, [], {}),
-        (geosearch, [0.0, 0.0], {}),
-        (bbox_search, [0.0, 0.0, 1.0, 1.0], {}),
-        (search_by_source, ["NMDC"], {"limit": 1}),
-        (search_by_type, ["sample"], {"limit": 1}),
-        (search_by_name, ["test"], {"limit": 1}),
-        (advanced_query, [], {"filter_dict": {"entity_type": "sample"}, "limit": 1}),
-        (entity_lookup, ["test_id"], {}),
-    ]
-
-    for func, args, kwargs in functions_to_test:
-        try:
-            result = func(*args, **kwargs)
-
-            # Check return types
-            if func == health_check:
-                assert result is None or isinstance(result, dict)
-            elif func == entity_lookup:
-                assert result is None or isinstance(result, Entity)
-            else:
-                assert result is None or isinstance(result, QueryResponse)
-
-        except Exception as e:
-            # Some calls may fail due to network/API issues, that's acceptable
-            # We're mainly testing that functions don't crash with type errors
-            assert isinstance(e, Exception)  # Just ensure it's a proper exception
+    
+    # Health check should always return dict
+    result = health_check()
+    assert isinstance(result, dict)
+    
+    # Geosearch should return QueryResponse
+    result = geosearch(0.0, 0.0)
+    assert isinstance(result, QueryResponse)
+    
+    # Bbox search should return QueryResponse
+    result = bbox_search(0.0, 0.0, 1.0, 1.0)
+    assert isinstance(result, QueryResponse)
+    
+    # Search by source should return QueryResponse
+    result = search_by_source("NMDC", limit=1)
+    assert isinstance(result, QueryResponse)
+    
+    # Search by type should return QueryResponse
+    result = search_by_type("sample", limit=1)
+    assert isinstance(result, QueryResponse)
+    
+    # Search by name should return QueryResponse
+    result = search_by_name("test", limit=1)
+    assert isinstance(result, QueryResponse)
+    
+    # Advanced query should return QueryResponse
+    result = advanced_query(filter_dict={"entity_type": "sample"}, limit=1)
+    assert isinstance(result, QueryResponse)
+    
+    # Entity lookup with invalid ID should return None
+    result = entity_lookup("test_id")
+    assert result is None

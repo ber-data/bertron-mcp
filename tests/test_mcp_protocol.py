@@ -47,19 +47,12 @@ def test_tool_execution_basic():
     # Test health_check directly
     from src.bertron_mcp.main import health_check
 
-    try:
-        result = health_check()
+    result = health_check()
 
-        # Should return dict or None
-        assert result is None or isinstance(result, dict)
-
-        if isinstance(result, dict):
-            # Should have expected health check fields
-            assert "web_server" in result or "database" in result
-
-    except Exception as e:
-        # Network errors are acceptable in testing
-        assert "API" in str(e) or "connection" in str(e).lower()
+    # Should return dict with health status
+    assert isinstance(result, dict)
+    assert "web_server" in result
+    assert "database" in result
 
 
 def test_geosearch_function_call():
@@ -68,21 +61,14 @@ def test_geosearch_function_call():
 
     from src.bertron_mcp.main import geosearch
 
-    try:
-        # Test with basic coordinates
-        result = geosearch(0.0, 0.0, 1.0)
+    # Test with basic coordinates
+    result = geosearch(0.0, 0.0, 1.0)
 
-        # Should return QueryResponse or None
-        assert result is None or isinstance(result, QueryResponse)
-
-        if result is not None:
-            assert hasattr(result, 'entities')
-            assert hasattr(result, 'count')
-            assert hasattr(result, 'query_type')
-
-    except Exception as e:
-        # Network/API errors are acceptable
-        assert "API" in str(e) or "connection" in str(e).lower()
+    # Should return QueryResponse
+    assert isinstance(result, QueryResponse)
+    assert hasattr(result, 'entities')
+    assert hasattr(result, 'count')
+    assert hasattr(result, 'query_type')
 
 
 def test_entity_lookup_function_call():
@@ -91,16 +77,11 @@ def test_entity_lookup_function_call():
 
     from src.bertron_mcp.main import entity_lookup
 
-    try:
-        # Test with invalid ID (should return None gracefully)
-        result = entity_lookup("invalid_test_id")
+    # Test with invalid ID (should return None gracefully)
+    result = entity_lookup("invalid_test_id")
 
-        # Should return Entity or None
-        assert result is None or isinstance(result, Entity)
-
-    except Exception as e:
-        # Network/API errors are acceptable
-        assert "API" in str(e) or "connection" in str(e).lower()
+    # Should return Entity or None
+    assert result is None or isinstance(result, Entity)
 
 
 def test_logging_configuration():
@@ -120,27 +101,23 @@ def test_constraint_reporting_integration():
 
     from src.bertron_mcp.main import search_by_source
 
-    try:
-        # Test with limit that should trigger constraint reporting
-        result = search_by_source("NMDC", limit=5000)  # Above MAX_LIMIT
+    # Test with limit that should trigger constraint reporting
+    result = search_by_source("NMDC", limit=5000)  # Above MAX_LIMIT
 
-        if isinstance(result, QueryResponse):
-            # Should have constraint reporting in metadata
-            if result.metadata:
-                # Check for constraint reporting
-                assert isinstance(result.metadata, dict)
-
-                # If constraints were applied, they should be reported
-                if "constraints_applied" in result.metadata:
-                    constraints = result.metadata["constraints_applied"]
-                    assert "requested_limit" in constraints
-                    assert "actual_limit" in constraints
-                    assert constraints["requested_limit"] == 5000
-                    assert constraints["actual_limit"] == MAX_LIMIT
-
-    except Exception as e:
-        # Network/API errors are acceptable
-        assert "API" in str(e) or "connection" in str(e).lower()
+    # Should always return QueryResponse
+    assert isinstance(result, QueryResponse)
+    
+    # Should have constraint reporting in metadata
+    assert result.metadata is not None
+    assert isinstance(result.metadata, dict)
+    
+    # Constraints should be applied and reported
+    assert "constraints_applied" in result.metadata
+    constraints = result.metadata["constraints_applied"]
+    assert "requested_limit" in constraints
+    assert "actual_limit" in constraints
+    assert constraints["requested_limit"] == 5000
+    assert constraints["actual_limit"] == MAX_LIMIT
 
 
 def test_function_imports():
