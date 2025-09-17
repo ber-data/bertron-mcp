@@ -359,7 +359,7 @@ def search_by_type(
 
 def search_by_name(
     name_pattern: str, case_sensitive: bool = False, limit: int = DEFAULT_LIMIT
-) -> QueryResponse | None:
+) -> QueryResponse:
     """
     Search for samples and datasets by name or description.
 
@@ -375,11 +375,34 @@ def search_by_name(
     Returns:
         Samples and datasets with names or descriptions matching the pattern
     """
+    import re
+
+    # Validate regex pattern first
+    try:
+        re.compile(name_pattern)
+    except re.error as e:
+        logger.warning(f"Invalid regex pattern '{name_pattern}': {e}")
+        # Return empty QueryResponse for invalid patterns
+        empty_result = QueryResponse(entities=[], count=0)
+        empty_result.metadata = {
+            "constraints_applied": {
+                "pattern": name_pattern,
+                "reason": f"Invalid regex pattern: {e}"
+            }
+        }
+        return empty_result
+
     # Enforce maximum limit to prevent overwhelming responses
     original_limit = limit
+    constraints_applied = {}
     if limit > MAX_LIMIT:
         limit = MAX_LIMIT
         logger.warning(f"Limit constrained to maximum of {MAX_LIMIT}")
+        constraints_applied["limit"] = {
+            "requested": original_limit,
+            "actual": limit,
+            "reason": f"Exceeded maximum limit of {MAX_LIMIT}"
+        }
 
     client = BertronClient(base_url=BERTRON_API_URL)
     client.session.verify = False
@@ -395,15 +418,11 @@ def search_by_name(
             limit=limit
         )
 
-        # Add constraint information to metadata
-        if result and original_limit != limit:
+        # Add constraint information to metadata if any were applied
+        if result and constraints_applied:
             if not result.metadata:
                 result.metadata = {}
-            result.metadata["constraints_applied"] = {
-                "requested_limit": original_limit,
-                "actual_limit": limit,
-                "reason": f"Exceeded maximum limit of {MAX_LIMIT}"
-            }
+            result.metadata["constraints_applied"] = constraints_applied
 
         logger.debug(result)
         return result
@@ -413,7 +432,13 @@ def search_by_name(
         logger.error("API connection error: %s", e)
         logger.debug(traceback.format_exc())
 
-    return None
+        # Return empty QueryResponse instead of None
+        empty_result = QueryResponse(entities=[], count=0)
+        empty_result.metadata = {
+            "error": f"API connection error: {e}",
+            "constraints_applied": constraints_applied if constraints_applied else {}
+        }
+        return empty_result
 
 # MAIN SECTION
 # Create the FastMCP instance

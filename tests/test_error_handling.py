@@ -144,7 +144,7 @@ def test_search_by_name_empty_pattern():
 def test_search_by_name_invalid_regex():
     """Test search_by_name with invalid regex patterns"""
     import re
-    
+
     invalid_regex_patterns = [
         "[",           # Unclosed bracket
         "(?P<",        # Invalid group

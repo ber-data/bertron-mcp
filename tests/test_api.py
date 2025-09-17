@@ -158,9 +158,9 @@ def test_search_by_name():
     """Test searching by name pattern"""
     result = search_by_name(".*water.*", case_sensitive=False)
 
-    assert result is None or isinstance(result, QueryResponse)
+    assert isinstance(result, QueryResponse)
 
-    if result is not None and result.count > 0:
+    if result.count > 0:
         # Verify entities contain "water" in name (case-insensitive)
         for entity in result.entities:
             if entity.name:
@@ -241,17 +241,17 @@ def test_search_by_name_limit_enforcement():
     # Test with limit above maximum
     result = search_by_name(".*", case_sensitive=False, limit=1500)
 
-    assert result is None or isinstance(result, QueryResponse)
+    assert isinstance(result, QueryResponse)
 
-    if result is not None:
-        # Should be constrained to MAX_LIMIT (1000)
-        assert len(result.entities) <= 1000
+    # Should be constrained to MAX_LIMIT (1000)
+    assert len(result.entities) <= 1000
 
-        # Should report constraints in metadata
-        if "constraints_applied" in result.metadata:
-            constraints = result.metadata["constraints_applied"]
-            assert constraints["requested_limit"] == 1500
-            assert constraints["actual_limit"] == 1000
+    # Should report constraints in metadata
+    if "constraints_applied" in result.metadata:
+        constraints = result.metadata["constraints_applied"]
+        if "limit" in constraints:
+            assert constraints["limit"]["requested"] == 1500
+            assert constraints["limit"]["actual"] == 1000
 
 def test_advanced_query_limit_enforcement():
     """Test that advanced_query enforces limits and reports constraints"""
@@ -339,13 +339,12 @@ def test_search_by_name_case_sensitivity():
     # Test case-sensitive search
     result_sensitive = search_by_name("WATER", case_sensitive=True, limit=5)
 
-    # Both should return valid responses or None
-    assert result_insensitive is None or isinstance(result_insensitive, QueryResponse)
-    assert result_sensitive is None or isinstance(result_sensitive, QueryResponse)
+    # Both should return valid responses
+    assert isinstance(result_insensitive, QueryResponse)
+    assert isinstance(result_sensitive, QueryResponse)
 
     # Case-insensitive should generally return more results
-    if result_insensitive is not None and result_sensitive is not None:
-        assert result_insensitive.count >= result_sensitive.count
+    assert result_insensitive.count >= result_sensitive.count
 
 def test_search_by_name_regex_patterns():
     """Test search_by_name with various regex patterns"""
@@ -359,8 +358,8 @@ def test_search_by_name_regex_patterns():
     for pattern in patterns:
         result = search_by_name(pattern, case_sensitive=False, limit=5)
 
-        # Should return valid response or None
-        assert result is None or isinstance(result, QueryResponse)
+        # Should return valid response
+        assert isinstance(result, QueryResponse)
 
 def test_geosearch_edge_coordinates():
     """Test geosearch with edge case coordinates"""
@@ -485,35 +484,35 @@ def test_entity_lookup_invalid_id():
 def test_all_tools_return_types():
     """Test that all tools return expected types"""
     # Test basic calls to ensure proper return types
-    
+
     # Health check should always return dict
     result = health_check()
     assert isinstance(result, dict)
-    
+
     # Geosearch should return QueryResponse
     result = geosearch(0.0, 0.0)
     assert isinstance(result, QueryResponse)
-    
+
     # Bbox search should return QueryResponse
     result = bbox_search(0.0, 0.0, 1.0, 1.0)
     assert isinstance(result, QueryResponse)
-    
+
     # Search by source should return QueryResponse
     result = search_by_source("NMDC", limit=1)
     assert isinstance(result, QueryResponse)
-    
+
     # Search by type should return QueryResponse
     result = search_by_type("sample", limit=1)
     assert isinstance(result, QueryResponse)
-    
+
     # Search by name should return QueryResponse
     result = search_by_name("test", limit=1)
     assert isinstance(result, QueryResponse)
-    
+
     # Advanced query should return QueryResponse
     result = advanced_query(filter_dict={"entity_type": "sample"}, limit=1)
     assert isinstance(result, QueryResponse)
-    
+
     # Entity lookup with invalid ID should return None
     result = entity_lookup("test_id")
     assert result is None

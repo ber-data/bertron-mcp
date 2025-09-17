@@ -106,11 +106,11 @@ def test_constraint_reporting_integration():
 
     # Should always return QueryResponse
     assert isinstance(result, QueryResponse)
-    
+
     # Should have constraint reporting in metadata
     assert result.metadata is not None
     assert isinstance(result.metadata, dict)
-    
+
     # Constraints should be applied and reported
     assert "constraints_applied" in result.metadata
     constraints = result.metadata["constraints_applied"]

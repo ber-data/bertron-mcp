@@ -120,14 +120,14 @@ def test_name_search_realistic():
     # Search for water-related samples
     result = search_by_name(".*water.*", case_sensitive=False, limit=5)
 
-    if result is not None and isinstance(result, QueryResponse):
-        assert result.count >= 0
-        assert len(result.entities) <= 5
+    assert isinstance(result, QueryResponse)
+    assert result.count >= 0
+    assert len(result.entities) <= 5
 
-        # If we found results, verify they contain "water" in name
-        for entity in result.entities:
-            if hasattr(entity, 'name') and entity.name:
-                assert "water" in entity.name.lower()
+    # If we found results, verify they contain "water" in name
+    for entity in result.entities:
+        if hasattr(entity, 'name') and entity.name:
+            assert "water" in entity.name.lower()
 
 
 def test_limit_constraint_enforcement():
@@ -178,26 +178,26 @@ def test_entity_data_quality():
 def test_error_recovery():
     """Test that functions handle edge cases appropriately"""
     # Test with edge case inputs
-    
+
     # Very small radius should work and return valid QueryResponse
     result = geosearch(0.0, 0.0, 0.1)
     assert isinstance(result, QueryResponse)
     assert result.count >= 0  # Empty results are fine
-    
+
     # Invalid ID should return None (documented behavior)
     result = entity_lookup("invalid_id")
     assert result is None
-    
+
     # Invalid source should return QueryResponse with no results
     result = search_by_source("INVALID_SOURCE")
     assert isinstance(result, QueryResponse)
     assert result.count == 0  # Should be empty but not None
-    
-    # Invalid type should return QueryResponse with no results  
+
+    # Invalid type should return QueryResponse with no results
     result = search_by_type("invalid_type")
     assert isinstance(result, QueryResponse)
     assert result.count == 0  # Should be empty but not None
-    
+
     # Nonexistent field should return QueryResponse (API should handle gracefully)
     result = advanced_query(filter_dict={"nonexistent_field": "value"})
     assert isinstance(result, QueryResponse)
