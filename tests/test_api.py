@@ -99,5 +99,5 @@ def test_geosearch_2():
 
     # Check depth information if present
     if coords.depth:
-        assert coords.depth.has_unit == "m"
-        assert coords.depth.has_minimum_numeric_value >= 0.0
+        assert coords.depth.unit == "m"
+        assert coords.depth.minimum_numeric_value >= 0.0
