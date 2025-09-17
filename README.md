@@ -2,6 +2,17 @@
 
 A Model Context Protocol (MCP) server providing access to the BERtron API, which aggregates genomic and environmental data from multiple Biological and Environmental Research (BER) data sources including EMSL, ESS-DIVE, JGI, MONET, and NMDC.
 
+## Quick Start
+
+### Install and run directly from GitHub
+```bash
+# Run directly without installing
+uvx --from git+https://github.com/ber-data/bertron-mcp.git bertron-mcp
+
+# Or install first, then run
+uvx --from git+https://github.com/ber-data/bertron-mcp.git bertron-mcp --version
+```
+
 ## Features
 
 - 🔍 **Geospatial Search**: Find entities within a specified radius of geographic coordinates
